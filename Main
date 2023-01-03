@@ -1,0 +1,128 @@
+package chucknorris
+
+const val SEVEN = 7
+fun decodeFun() {
+    println("Input encoded string:")
+    val msgWarning = "Encoded string is not valid."
+    var str = readln()
+
+    for (h in str) {
+        if (h != '0' && h != ' ') {
+            println(msgWarning + "\n")
+            return
+        }
+    }
+    val arrayInTwo = intArrayOf(64, 32, 16, 8, 4, 2, 1)
+    if (str.last().isWhitespace()) {
+        str = str.substring(0, str.length - 1)
+    }
+    val strArray = str.split(" ")
+    if (strArray[0] != "00" && strArray[0] != "0" || strArray.size % 2 != 0) {
+        println(msgWarning + "\n")
+        return
+    }
+    var newStr = ""
+    for (i in strArray.indices step 2) {
+        for (j in strArray[i + 1].indices) {
+            newStr += if (strArray[i] == "0") "1" else "0"
+        }
+    }
+    if (newStr.length % 7 != 0) {
+        println(msgWarning + "\n")
+        return
+    }
+    for (fi in strArray.indices step 2) {
+        if (strArray[fi] != "00" && strArray[fi] != "0") {
+            println(msgWarning + "\n")
+            return
+        }
+    }
+    println("Decoded string:")
+    // Перекодируем относительно таблицы ASCII
+    var number = 0
+    var count = -1
+    var x: Int
+    for (k in newStr.indices) {
+        count++
+        if (count < 7) {
+            x = Integer.parseInt(newStr[k].toString())
+            number += arrayInTwo[count] * x
+        } else {
+            print(number.toChar())
+            count = 0
+            number = 0
+            x = Integer.parseInt(newStr[k].toString())
+            number += arrayInTwo[count] * x
+        }
+    }
+    println("${number.toChar()}\n")
+}
+
+fun encodeFun() {
+    println("Input string:")
+    var str = readln()
+    println("Encoded string:")
+    if (str.last().isWhitespace()) {
+        str = str.substring(0, str.length - 1)
+    }
+    var newStr = ""
+    for (i in str) {
+        newStr += codeToTwo(i)
+    }
+    var result = ""
+    var miniStr = ""
+    var count = ""
+    var myK = ' '
+    for (k in newStr) {
+        if (myK == ' ') {
+            count += "0"
+            miniStr = if (k == '1') "0" else "00"
+            myK = k
+        } else if (k == myK) {
+            count += "0"
+        } else {
+            result += "$miniStr $count "
+            count = ""
+            myK = k
+            miniStr = if (k == '1') "0" else "00"
+            count += "0"
+        }
+    }
+    result += "$miniStr $count "
+    val newtrim = result.trim()
+    println("${newtrim}\n")
+}
+
+fun codeToTwo(sumbol: Char): String {
+    var x = sumbol.code
+    var str = ""
+    while (true) {
+        str = if (x % 2 == 0) "0$str" else "1$str"
+        x /= 2
+        if (x / 2 < 1) {
+            str = "1$str"
+            break
+        }
+    }
+    while (str.length < 7) str = "0$str"
+    return str
+}
+
+fun main() {
+    while (true) {
+        println("Please input operation (encode/decode/exit):")
+        when (val inputOperation = readln()) {
+            "encode" -> encodeFun()
+            "decode" -> decodeFun()
+            "exit" -> {
+                println("Bye!")
+                break
+            }
+
+            else -> {
+                println("There is no \'$inputOperation\' operation\n")
+                continue
+            }
+        }
+    }
+}
